@@ -238,14 +238,14 @@ module Robotstxt
               if value == ""
                 @rules.last[1] << ["*", true]
               else
-                @rules.last[1] << [value, false]
+                @rules.last[1] << [objectify_uri(value).to_s, false]
               end
             when "allow"
               parser_mode = :rules
               @rules << ["*", []] if @rules.empty?
-              @rules.last[1] << [value, true]
+              @rules.last[1] << [objectify_uri(value).to_s, true]
             when "sitemap"
-              @sitemaps << value
+              @sitemaps << objectify_uri(value).to_s
             else
               # Ignore comments, Crawl-delay: and badly formed lines.
           end
