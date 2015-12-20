@@ -60,10 +60,13 @@ module Robotstxt
     end
 
     # Given a URI object, or a string representing one, determine whether this
-    # robots.txt would allow access to the path.
+    # robots.txt would allow access to the path. An invalid uri will return false
     def allowed?(uri)
 
       uri = objectify_uri(uri)
+
+      return false unless uri
+
       path = (uri.path || "/") + (uri.query ? '?' + uri.query : '')
       path_allowed?(@robot_id, path)
 
@@ -238,14 +241,17 @@ module Robotstxt
               if value == ""
                 @rules.last[1] << ["*", true]
               else
-                @rules.last[1] << [objectify_uri(value).to_s, false]
+                parsed_value = objectify_uri(value)
+                @rules.last[1] << [parsed_value.to_s, false] if parsed_value
               end
             when "allow"
               parser_mode = :rules
               @rules << ["*", []] if @rules.empty?
-              @rules.last[1] << [objectify_uri(value).to_s, true]
+              parsed_value = objectify_uri(value)
+              @rules.last[1] << [parsed_value.to_s, true] if parsed_value
             when "sitemap"
-              @sitemaps << objectify_uri(value).to_s
+              parsed_value = objectify_uri(value)
+              @sitemaps << parsed_value.to_s if parsed_value
             else
               # Ignore comments, Crawl-delay: and badly formed lines.
           end
