@@ -44,6 +44,8 @@ module Robotstxt
     # Gets every Sitemap mentioned in the body of the robots.txt file.
     #
     attr_reader :sitemaps
+    
+    attr_accessor :rules
 
     # Create a new parser for this user_agent and this robots.txt contents.
     #
