@@ -80,18 +80,24 @@ module Robotstxt
     # string) is allowed by the rules we have for the given user_agent.
     #
     def path_allowed?(user_agent, path)
-
-      @rules.each do |(ua_glob, path_globs)|
-
-        if match_ua_glob user_agent, ua_glob
-          path_globs.each do |(path_glob, allowed)|
-            return allowed if match_path_glob path, path_glob
-          end
-          return true
-        end
-
+      (select_rule(user_agent) || []).each do |(path_glob, allowed)|
+        return allowed if match_path_glob path, path_glob
       end
       true
+    end
+    
+    def select_rule(user_agent)
+      user_agent ||= "" # case when passed nil
+      @agent_rules ||= {} # results cached
+      return @agent_rules[user_agent] if @agent_rules.has_key? user_agent
+      
+      case user_agent.downcase
+        when /google/
+          filtered_rules = @rules.select { |e|  match_ua_glob user_agent, e[0] }
+          @agent_rules[user_agent] = filtered_rules.sort_by {|e| e[0].length}.last
+        else
+          @agent_rules[user_agent] = @rules.find {|e| match_ua_glob user_agent, e[0] }
+      end
     end
 
 
