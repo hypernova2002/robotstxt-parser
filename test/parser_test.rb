@@ -79,14 +79,20 @@ ROBOTSTXT
 
   def test_useragents
     robotstxt = <<-ROBOTS
-User-agent: Google
 User-agent: Yahoo
 Disallow:
 
 User-agent: *
 Disallow: /
+
+User-agent: Google
+Disallow: 
+
+User-agent: GoogleBot
+Disallow: /
 ROBOTS
     assert true == Robotstxt::Parser.new("Google", robotstxt).allowed?("/hello")
+    assert false == Robotstxt::Parser.new("GoogleBot", robotstxt).allowed?("/hello")
     assert true == Robotstxt::Parser.new("Yahoo", robotstxt).allowed?("/hello")
     assert false == Robotstxt::Parser.new("Bing", robotstxt).allowed?("/hello")
   end

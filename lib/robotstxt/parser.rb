@@ -80,7 +80,9 @@ module Robotstxt
     # string) is allowed by the rules we have for the given user_agent.
     #
     def path_allowed?(user_agent, path)
-      (select_rule(user_agent) || []).each do |(path_glob, allowed)|
+      selected_rule = select_rule(user_agent)
+      path_globs = (selected_rule && selected_rule[1]) || []
+      path_globs.each do |(path_glob, allowed)|
         return allowed if match_path_glob path, path_glob
       end
       true
@@ -93,7 +95,7 @@ module Robotstxt
       
       case user_agent.downcase
         when /google/
-          filtered_rules = @rules.select { |e|  match_ua_glob user_agent, e[0] }
+          filtered_rules = @rules.select { |e|  match_ua_glob_google user_agent, e[0] }
           @agent_rules[user_agent] = filtered_rules.sort_by {|e| e[0].length}.last
         else
           @agent_rules[user_agent] = @rules.find {|e| match_ua_glob user_agent, e[0] }
@@ -120,6 +122,11 @@ module Robotstxt
       glob =~ Regexp.new(Regexp.escape(user_agent), "i") ||
           user_agent =~ Regexp.new(reify(glob), "i")
 
+    end
+    
+    # Google does this differently
+    def match_ua_glob_google(user_agent, glob)
+      user_agent =~ Regexp.new(reify(glob), "i")
     end
 
     # This does case-sensitive prefix matching, such that if the path starts
