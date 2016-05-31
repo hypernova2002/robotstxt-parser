@@ -93,13 +93,9 @@ module Robotstxt
       @agent_rules ||= {} # results cached
       return @agent_rules[user_agent] if @agent_rules.has_key? user_agent
       
-      case user_agent.downcase
-        when /google/
-          filtered_rules = @rules.select { |e|  match_ua_glob_google user_agent, e[0] }
-          @agent_rules[user_agent] = filtered_rules.sort_by {|e| e[0].length}.last
-        else
-          @agent_rules[user_agent] = @rules.find {|e| match_ua_glob user_agent, e[0] }
-      end
+      @agent_rules[user_agent] = @rules.select {|e|
+        match_ua_glob user_agent, e[0]
+      }.sort_by {|e| e[0].length}.last
     end
 
 
@@ -112,20 +108,13 @@ module Robotstxt
     #
     # For consistency, and because it seems expected behaviour, and because
     # a glob * will match a literal * we use glob matching not string matching.
-    #
+    # 
+    # NEXT BIT REMOVED [balvienie]
     # The standard also advocates a substring match of the robot's user-agent
     # within the user-agent field. From observation, it seems much more likely
     # that the match will be the other way about, though we check for both.
     #
     def match_ua_glob(user_agent, glob)
-
-      glob =~ Regexp.new(Regexp.escape(user_agent), "i") ||
-          user_agent =~ Regexp.new(reify(glob), "i")
-
-    end
-    
-    # Google does this differently
-    def match_ua_glob_google(user_agent, glob)
       user_agent =~ Regexp.new(reify(glob), "i")
     end
 
