@@ -82,10 +82,15 @@ module Robotstxt
     def path_allowed?(user_agent, path)
       selected_rule = select_rule(user_agent)
       path_globs = (selected_rule && selected_rule[1]) || []
+      l = { :true => 0, :false => 0 } # stores the longest match found for allowed/disallowed
       path_globs.each do |(path_glob, allowed)|
-        return allowed if match_path_glob path, path_glob
+        if match_path_glob path, path_glob
+          if path_glob.length > l[allowed.to_s.to_sym]
+            l[allowed.to_s.to_sym] = path_glob.length
+          end
+        end
       end
-      true
+      (l[:true] >= l[:false])
     end
     
     def select_rule(user_agent)

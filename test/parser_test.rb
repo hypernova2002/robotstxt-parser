@@ -13,10 +13,14 @@ class TestParser < Test::Unit::TestCase
 User-agent: *
 Disallow: /?*\t\t\t#comment
 Disallow: /home
+Allow:    /home/longer
 Disallow: /dashboard
 Disallow: /terms-conditions
 Disallow: /privacy-policy
 Disallow: /index.php
+Disallow: /samelength
+Allow:    /samelength
+Disallow: /home/longer/longer_still
 Disallow: /chargify_system
 Disallow: /test*
 Disallow: /team*     # comment
@@ -34,6 +38,10 @@ ROBOTS
     assert false == client.allowed?("/test/example")
     assert false == client.allowed?("/team-game")
     assert false == client.allowed?("/team-game/example")
+    assert true == client.allowed?("/home/longer")
+    assert false == client.allowed?("/home/longer/longer_still")
+    assert true == client.allowed?("/samelength")
+    
     assert ["http://example.com/sitemap.xml"] == client.sitemaps
 
   end
