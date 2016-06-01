@@ -143,16 +143,15 @@ module Robotstxt
     #
     def match_path_glob(path, glob)
 
-      if glob =~ /\$$/
-        end_marker = '(?:\?|$)'
-        glob = glob.gsub /\$$/, ""
+      if glob =~ /\$/
+        end_marker = '\z'
+        glob = glob.gsub /\$/, ""
       else
         end_marker = ""
       end
 
       glob = Robotstxt.ultimate_scrubber normalize_percent_encoding(glob)
       path = Robotstxt.ultimate_scrubber normalize_percent_encoding(path)
-
       path =~ Regexp.new("^" + reify(glob) + end_marker)
 
     # Some people encode bad UTF-8 in their robots.txt files, let us not behave badly.
@@ -190,7 +189,7 @@ module Robotstxt
       glob = Robotstxt.ultimate_scrubber(glob)
 
       # -1 on a split prevents trailing empty strings from being deleted.
-      glob.split("*", -1).map{ |part| Regexp.escape(part) }.join(".*")
+      glob.split(/\*+/, -1).map{ |part| Regexp.escape(part) }.join(".*")
 
     end
 
