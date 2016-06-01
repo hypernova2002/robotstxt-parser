@@ -150,7 +150,75 @@ ROBOTS
     assert_allowed(rt, "/")
   end
   
+  def test_ua_directive_variations
+    assert_disallowed(Robotstxt::Parser.new("Googlebot","User agent: *\nAllow:/*/detail.aspx$\nDisallow:/*/new_arrivals/*"),
+                      "/men's/new_arrivals/88979-reversible_smart_belt/detail.aspx")
+    assert_disallowed(Robotstxt::Parser.new("Googlebot","Useragent: *\nAllow:/*/detail.aspx$\nDisallow:/*/new_arrivals/*"),
+                      "/men's/new_arrivals/88979-reversible_smart_belt/detail.aspx")
+    assert_disallowed(Robotstxt::Parser.new("Googlebot","usEr-AgenT: *\nAllow:/*/detail.aspx$\nDisallow:/*/new_arrivals/*"),
+                      "/men's/new_arrivals/88979-reversible_smart_belt/detail.aspx")
+    assert_disallowed(Robotstxt::Parser.new("Googlebot","usEr AgenT: *\nAllow:/*/detail.aspx$\nDisallow:/*/new_arrivals/*"),
+                      "/men's/new_arrivals/88979-reversible_smart_belt/detail.aspx")
+    assert_disallowed(Robotstxt::Parser.new("Googlebot","usErAgenT: *\nAllow:/*/detail.aspx$\nDisallow:/*/new_arrivals/*"),
+                      "/men's/new_arrivals/88979-reversible_smart_belt/detail.aspx")
+  end
+
+  def test_asterisk_positions
+    assert_disallowed(Robotstxt::Parser.new("Googlebot","user-agent: *\r\n\r\nDisallow: /xi/candidate_membership\r\nDisallow: /*?pg="),
+                      "/jobs/-/-/applications-developer/-?pg=1")
+  end
+
+  def test_mac_newline
+    assert_disallowed(Robotstxt::Parser.new("Googlebot","User-Agent: *\rDisallow: /destinations/\rDisallow: /destinations.html/"),
+                      "/destinations/Home.html")
+  end
   
-  
+  def test_precedence_1
+    assert_disallowed(Robotstxt::Parser.new("Googlebot","User-agent: *\nAllow:/*/detail.aspx$\nDisallow:/*/new_arrivals/*"),
+                      "/men's/new_arrivals/88979-reversible_smart_belt/detail.aspx")
+
+    assert_disallowed(Robotstxt::Parser.new("Googlebot","User-agent: *\nAllow:/ur*te\nDisallow:/ur*/*ele*"),
+                      "/url/delet")
+
+    assert_disallowed(Robotstxt::Parser.new("Googlebot","User-agent: *\nAllow:/ur*te\nDisallow:/ur*/*ele*"),
+                      "/url/delete")
+
+    assert_disallowed(Robotstxt::Parser.new("Googlebot","User-agent: *\nAllow:/url/delete\nDisallow:/url/delete$"),
+                      "/url/delete")
+
+    assert_disallowed(Robotstxt::Parser.new("Googlebot","User-agent: *\nAllow:/url/delete\nDisallow:/url/*elete$"),
+                      "/url/delete")
+
+    assert_disallowed(Robotstxt::Parser.new("Googlebot","User-agent: *\nAllow:/*/detail.aspx$\nDisallow:/*/new_arrivals/*"),
+                      "/men's/new_arrivals/88979-reversible_smart_belt/detail.aspx")
+
+    assert_disallowed(Robotstxt::Parser.new("Googlebot","User-agent: *\nAllow:*/d*t*i*.aspx$\nDisallow:*****tail.aspx$"),
+                      "/men's/new_arrivals/84604-leather_belt_in_a_box_gift_set/detail.aspx")
+
+    assert_disallowed(Robotstxt::Parser.new("Googlebot","User-agent: *\nAllow:/**i*.aspx$\nDisallow:*new_arr*als/*"),
+                      "/men's/new_arrivals/84604-leather_belt_in_a_box_gift_set/detail.aspx")
+
+    assert_allowed(Robotstxt::Parser.new("Googlebot","User-agent: *\nAllow:/men/ter*\nDisallow:/men/ter"),
+                   "/men/ter")
+
+    assert_allowed(Robotstxt::Parser.new("Googlebot","User-agent: *\nAllow:/ur*elete\nDisallow:/url/*ele"),
+                   "/url/delete")
+
+    assert_allowed(Robotstxt::Parser.new("Googlebot","User-agent: *\nAllow:/ur*delete\nDisallow:/url/*ele"),
+                   "/url/delete")
+
+    assert_allowed(Robotstxt::Parser.new("Googlebot","User-agent: *\nAllow:/*belt/detail.aspx$\nDisallow:/*/new_arrivals/*"),
+                   "/men's/new_arrivals/88979-reversible_smart_belt/detail.aspx")
+
+    assert_allowed(Robotstxt::Parser.new("Googlebot","User-agent: *\nAllow:/men/ter*\nDisallow:/men/ter$"),
+                   "/men/ter")
+
+    assert_allowed(Robotstxt::Parser.new("Googlebot","User-agent: *\nAllow:/*/d*t*i*.aspx$\nDisallow:*****tail.aspx$"),
+                   "/men's/new_arrivals/84604-leather_belt_in_a_box_gift_set/detail.aspx")
+
+    assert_allowed(Robotstxt::Parser.new("Googlebot","User-agent: *\nAllow:/*****i*.aspx$\nDisallow:*new_arr*als/*"),
+                   "/men's/new_arrivals/84604-leather_belt_in_a_box_gift_set/detail.aspx")
+  end
+
   
 end

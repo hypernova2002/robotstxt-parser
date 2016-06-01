@@ -192,7 +192,11 @@ module Robotstxt
       glob.split(/\*+/, -1).map{ |part| Regexp.escape(part) }.join(".*")
 
     end
-
+    
+    def flatten_rules
+      
+    end
+    
     # Convert the @body into a set of @rules so that our parsing mechanism
     # becomes easier.
     #
@@ -265,6 +269,13 @@ module Robotstxt
           end
         end
       end
+      
+      rules_h = {}
+      @rules.each do |e|
+        rules_h[e[0]] ||= []
+        rules_h[e[0]] += e[1]
+      end
+      @rules = rules_h.to_a
     end
   end
 end

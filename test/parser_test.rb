@@ -81,7 +81,7 @@ ROBOTSTXT
 )
     assert true == google.allowed?("/.pdfs/index.html")
     assert false == google.allowed?("/.pdfs/index.pdf")
-    assert false == google.allowed?("/.pdfs/index.pdf?action=view")
+    assert true == google.allowed?("/.pdfs/index.pdf?action=view")
     assert false == google.allowed?("/.pdfs/index.html?download_as=.pdf")
   end
 
